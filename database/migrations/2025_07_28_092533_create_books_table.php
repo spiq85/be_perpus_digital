@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string("slug");
             $table->text('description');
             $table->integer('rating_counts')->default(0);
+            $table->year('publication_year');
             $table->timestamps();
 
             $table->foreignId('id_category')->constrained('categories', 'id_category')->onDelete('cascade');

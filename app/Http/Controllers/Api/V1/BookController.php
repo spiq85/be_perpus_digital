@@ -41,14 +41,21 @@ class BookController extends Controller
             'id_category' => 'required|exists:categories,id_category',
             'id_author' => 'required|exists:authors,id_author',
             'id_publisher' => 'required|exists:publishers,id_publisher',
+            'publication_year' => 'required|digits:4',
+            'cover_image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'ebook_file' => 'required|file|mimes:pdf,epub',
         ]);
 
-        $book = Book::create($request->except('ebook_file'));
+        $book = Book::create($request->except('ebook_file', 'cover_image'));
+
+        if($request->hasFile('cover_image')) {
+            $book->addMediaFromRequest('cover_image')->toMediaCollection('covers');
+        }
 
         if($request->hasFile('ebook_file')) {
             $book->addNediaFromRequest('ebook_file')->toMediaCollection('ebooks');
         }
+        $book->load(['author' , 'category' , 'publisher']);
         return response()->json(['message' => 'Book Created Successfully.' , 'book' => $book], 201);
     }
 }

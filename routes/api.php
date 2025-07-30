@@ -7,6 +7,10 @@ use App\Http\Controllers\Api\V1\BookController;
 use App\Http\Controllers\Api\V1\RatingController;
 use App\Http\Controllers\Api\V1\FavoriteController;
 use App\Http\Controllers\Api\V1\CategoryController;
+use App\Http\Controllers\Api\V1\AuthorController;
+use App\Http\Controllers\Api\V1\PublisherController;
+
+
 // ==============
 // Public Routes
 // ==============
@@ -41,4 +45,14 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::get('/categories/{category}', [CategoryController::class, 'show']);
     Route::put('/categories/{category}', [CategoryController::class, 'update']);
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+
+    Route::get('authors', [AuthorController::class, 'index']);
+    Route::post('authors', [AuthorController::class, 'store']);
+    Route::put('/authors/{author}', [AuthorController::class, 'update']);
+    Route::delete('/authors/{author}', [AuthorController::class, 'destroy']);
+
+    Route::get('publishers', [PublisherController::class, 'index']);
+    Route::post('publishers', [PublisherController::class, 'store']);
+    Route::put('/publishers/{publisher}', [PublisherController::class, 'update']);
+    Route::delete('/publishers/{publisher}', [PublisherController::class, 'destroy']);
 });
