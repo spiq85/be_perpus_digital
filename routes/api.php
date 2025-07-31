@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\AuthorController;
 use App\Http\Controllers\Api\V1\PublisherController;
 use App\Http\Controllers\Api\V1\DashboardController;
+use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\UserController;
 
 
 // ==============
@@ -19,6 +21,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login' , [AuthController::class, 'login']);
 
 Route::get('/books', [BookController::class, 'index']);
+Route::get('/books/popular', [BookController::class, 'popularBooks']);
 Route::get('/books/{book:slug}', [BookController::class, 'show']);
 
 // ====================================
@@ -27,6 +30,8 @@ Route::get('/books/{book:slug}', [BookController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+
+    Route::get('/profile', [ProfileController::class, 'show']);
 
     Route::get('/books/{book}/read', [BookController::class, 'read']);
     Route::post('/books/{book}/rate', [BookController::class, 'store']);
@@ -41,7 +46,15 @@ Route::middleware('auth:sanctum')->group(function () {
 // Specific Routes (Admin)
 // ========================
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function (){
+
+    Route::get('users', [UserController::class, 'index']);
+    Route::get('users/{user}', [UserController::class, 'show']);
+    Route::put('users/{user}', [UserController::class, 'update']);
+    Route::delete('users/{user}', [UserController::class, 'destroy']);
+
     Route::post('books', [BookController::class, 'store']);
+    Route::put('books/{book}', [BookController::class, 'update']);
+    Route::delete('books/{book}', [BookController::class, 'destroy']);
 
     Route::get('categories', [CategoryController::class, 'index']);
     Route::post('categories', [CategoryController::class, 'store']);
@@ -58,4 +71,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::post('publishers', [PublisherController::class, 'store']);
     Route::put('/publishers/{publisher}', [PublisherController::class, 'update']);
     Route::delete('/publishers/{publisher}', [PublisherController::class, 'destroy']);
+
+    Route::get('dashboard/highest-rated-books', [DashboardController::class, 'highestRatedBooks']);
+    Route::get('dashboard/active-users', [DashboardController::class, 'activeUsers']);
 });

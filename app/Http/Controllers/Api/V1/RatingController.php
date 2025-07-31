@@ -21,9 +21,18 @@ class RatingController extends Controller
                 'id_user' => Auth::id(),
             ],
             [
-                'rating' => $requets->rating,
+                'rating' => $request->rating,
             ]
         );
+
+        $newAverage = $book->ratings()->avg('rating');
+        $ratingsCount = $book->ratings()->count();
+
+        $book->update([
+            'average_rating' => $newAverage,
+            'rating_counts' => $ratingsCount,
+        ]);
+
         return response()->json([
             'message' => 'Rating Successfully Submitted.',
             'rating' => $rating,

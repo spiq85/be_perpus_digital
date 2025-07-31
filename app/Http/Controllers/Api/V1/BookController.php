@@ -6,14 +6,30 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Book;
 use App\Models\ReadingHistory;
+use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
 {
     // Menampilkan List Buku
-    public function index()
+    public function index(Request $request)
     {
-        $books = Book::with(['author' , 'category'])->latest()->paginate(10);
-        return response()->json($books);
+        $books = Book::query()->with(['author' , 'category']);
+
+        if($request->has('search')) {
+            $searchTerm = $request->search;
+            $books->where(function($query) use ($searchTerm){
+                $query->where('title' , 'like' , '%' . $searchTerm . '%' )
+                ->orWhereHas('author', function($query) use ($searchTerm){
+                    $query->where('author_name' , 'like' , '%' . $searchTerm . '%');
+                });
+            });
+        }
+
+        if($request->has('category')) {
+            $books->where('id_category' , $request->id_category);
+        }
+
+        return response()->json($books->latest()->paginate(10));
     }
 
     // Menampilkan Detail Buku
@@ -40,6 +56,21 @@ class BookController extends Controller
         return $ebook;
     }
 
+    public function popularBooks()
+    {
+        $popularBooks = Book::with(['author' , 'category'])
+        ->orderBy('average_rating' , 'desc')
+        ->orderBy('rating_counts' , 'desc')
+        ->limit(10)
+        ->get();
+
+        $popularBooks->each(function($book){
+            $book->cover_url = $book->getFirstMediaUrl('covers');
+        });
+
+        return response()->json($popularBooks);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -61,9 +92,49 @@ class BookController extends Controller
         }
 
         if($request->hasFile('ebook_file')) {
-            $book->addNediaFromRequest('ebook_file')->toMediaCollection('ebooks');
+            $book->addMediaFromRequest('ebook_file')->toMediaCollection('ebooks');
         }
         $book->load(['author' , 'category' , 'publisher']);
         return response()->json(['message' => 'Book Created Successfully.' , 'book' => $book], 201);
+    }
+
+    public function update(Request $request, Book $book)
+    {   
+        $validatedData = $request->validate([
+            'title' => 'string|max:255',
+            'slug' => 'string|unique:books,slug,' . $book->id_book . ',id_book',
+            'description' => 'string',
+            'id_category' => 'exists:categories,id_category',
+            'id_author' => 'exists:authors,id_author',
+            'id_publisher' => 'exists:publishers,id_publisher',
+            'publication_year' => 'digits:4',
+            'cover_image' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'ebook_file' => 'file|mimes:pdf,epub',
+        ]);
+
+        $book->update($validatedData);
+
+        if($request->hasFile('cover_image')) {
+            $book->clearMediaCollection('covers');
+            $book->addMediaFromRequest('cover_image')->toMediaCollection('covers');
+        }
+
+        if($request->hasFile('ebook_file')) {
+            $book->clearMediaCollection('ebooks');
+            $book->addMediaFromRequest('ebook_file')->toMediaCollection('ebooks');
+        }
+
+        return response()->json([
+            'message' => 'Book Updated Successfully.' , 'book' => $book->load(['author' , 'category' , 'publisher'])
+        ]);
+    }
+
+    public function destroy(Book $book)
+    {
+        $book->delete();
+
+        return response()->json([
+            'message' => 'Book Deleted Successfully'
+        ]);
     }
 }

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string("slug");
             $table->text('description');
             $table->integer('rating_counts')->default(0);
+            $table->decimal('average_rating', 2,1)->default(0.0);
             $table->year('publication_year');
             $table->timestamps();
 

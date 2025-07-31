@@ -9,7 +9,7 @@ class ReadingHistory extends Model
 {
     use HasFactory;
 
-    protected $table = 'reading_history';
+    protected $table = 'reading_histories';
 
     protected $fillable = [
         'id_user',
