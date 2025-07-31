@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\FavoriteController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\AuthorController;
 use App\Http\Controllers\Api\V1\PublisherController;
+use App\Http\Controllers\Api\V1\DashboardController;
 
 
 // ==============
@@ -32,6 +33,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/books/{book}favorite', [FavoriteController::class, 'toggle']);
     Route::get('/my-favorites', [FavoriteController::class, 'index']);
+
+    Route::get('/dashboard/history', [DashboardController::class, 'getReadingHistory']);
 });
 
 // ========================

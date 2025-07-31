@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Book;
+use App\Models\ReadingHistory;
 
 class BookController extends Controller
 {
@@ -24,6 +25,13 @@ class BookController extends Controller
 
     public function read(Book $book)
     {
+
+        ReadingHistory::create([
+            'id_user' => Auth::id(),
+            'id_book' => $book->id_book,
+            'read_at' => now()
+        ]);
+
         $ebook = $book->getFirstMedia('ebooks');
 
         if (!$ebook) {

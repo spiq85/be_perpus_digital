@@ -60,4 +60,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Book::class, 'favorites' , 'id_user' , 'id_book');
     }
+
+    public function readingHistory()
+    {
+        return $this->hasMany(ReadingHistory::class, 'id_user' , 'id_user')->latest('read_at');
+    }
 }

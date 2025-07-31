@@ -42,4 +42,9 @@ class Book extends Model
     {
         return $this->belongsToMany(User::class, 'favorites' , 'id_book' , 'id_user');
     }
+
+    public function readingHistory()
+    {
+        return $this->hasMany(ReadingHistory::class, 'id_book', 'id_book');
+    }
 }
